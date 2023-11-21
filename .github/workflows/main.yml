@@ -1,0 +1,87 @@
+name: CI
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      CI: true
+      SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+      USE_SSH: true
+      GIT_USER: petyosi
+      NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+
+    steps:
+      - name: Begin CI...
+        uses: actions/checkout@v3
+
+      - name: Use Node 16
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        id: pnpm-install
+        with:
+          run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: | 
+          pnpm install
+          npx playwright install --with-deps chromium
+
+      - name: run lint and tests
+        run: |
+          pnpm lint
+          pnpm typecheck
+          pnpm test
+          pnpm e2e 
+
+      - name: Release
+        if: github.ref == 'refs/heads/master'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          rm -rf dist
+          npx semantic-release
+
+      - name: Configure GH Access
+        if: github.ref == 'refs/heads/master'
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          git config --global user.email "underlog@gmail.com"
+          git config --global user.name "Petyo Ivanov"
+          cat <<EOT >> ~/.ssh/config
+          Host github.com
+          HostName github.com
+          IdentityFile ~/.ssh/id_rsa
+          EOT
+
+      - name: Build and deploy docs
+        if: github.ref == 'refs/heads/master'
+        env:
+          GIT_USER: git
+          USE_SSH: true
+        run: |
+          pnpm build
+          pnpm docs:build
+          pnpm docs:deploy
