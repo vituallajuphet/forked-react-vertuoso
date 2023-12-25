@@ -117,7 +117,7 @@
     "url": "https://github.com/vituallajuphet/forked-react-vertuoso.git"
   },
   "dependencies": {
-    "@emotion/react": "^11.11.1",
+    "@emotion/react": "^11.11.3",
     "pnpm": "^8.10.5"
   }
 }
