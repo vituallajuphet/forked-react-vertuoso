@@ -11651,10 +11651,10 @@ playwright@1.40.0, playwright@^1.33.0:
   optionalDependencies:
     fsevents "2.3.2"
 
-pnpm@^8.10.5:
-  version "8.10.5"
-  resolved "https://registry.yarnpkg.com/pnpm/-/pnpm-8.10.5.tgz#4370a069f21873a0ad83c785b8048ed8caf6e6e9"
-  integrity sha512-nBYfQz2FVRxY8bOhCxjMPfcrWgLSyu5lZswFtvIK3e+UfnldkMOQM7+S3lUXfq1p2H9iqdqtyR56LjtY9JNToA==
+pnpm@^8.14.0:
+  version "8.14.0"
+  resolved "https://registry.yarnpkg.com/pnpm/-/pnpm-8.14.0.tgz#bb42032ff80dba5f9245bc1b03470d2fa0b7fb2f"
+  integrity sha512-XUv5ezSfrxpRMYqhuoh+mdnDbiA9vLVZOKkf3dJFQkbLAHI9ZkL1TUY6D1KicB2t+N4AKjf8YTyc3JTtVnXdzg==
 
 postcss-calc@^8.2.3:
   version "8.2.4"
